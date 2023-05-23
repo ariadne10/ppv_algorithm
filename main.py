@@ -33,14 +33,20 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     open_orders = open_orders.iloc[:-2, :]
     open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
-    # Merging
+ # Merging
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
-    # Drop specified columns
+ # Drop specified columns
     merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'STD Site', 'Offer JPN', 'STD JPN', 'STD MPN'])
 
-    # Write the DataFrame to the screen
+ # Write the DataFrame to the screen
     st.write(merged_data)
+
+ # Export to Excel
+    if st.button('Export data to Excel'):
+        merged_data.to_excel('exported_data.xlsx', index=False)
+        st.success('Data exported successfully!')
+
 else:
     st.warning('Please upload the Excel files.')
