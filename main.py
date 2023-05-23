@@ -1,5 +1,16 @@
 import streamlit as st
 import pandas as pd
+import base64
+
+def get_table_download_link(df):
+    """Generates a link allowing the data in a given panda dataframe to be downloaded
+    in:  dataframe
+    out: href string
+    """
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+    href = f'<a href="data:file/csv;base64,{b64}" download="merged_data.csv">Download csv file</a>'
+    return href
 
 # Display a file uploader widget in your app for each Excel file
 ppv_offers_file = st.file_uploader("Upload PPV Offers Excel", type=['xlsx'])
@@ -11,7 +22,8 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     ppv_offers = pd.read_excel(ppv_offers_file)
     sat_quotes = pd.read_excel(sat_quotes_file)
     open_orders = pd.read_excel(open_orders_file)
-
+    
+    
     # Preprocessing and merging code here
 
     # PPV Offers
@@ -37,16 +49,13 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
- # Drop specified columns
+    # Drop specified columns
     merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'STD Site', 'Offer JPN', 'STD JPN', 'STD MPN'])
 
- # Write the DataFrame to the screen
+    # Write the DataFrame to the screen
     st.write(merged_data)
 
- # Export to Excel
-    if st.button('Export data to Excel'):
-        merged_data.to_excel('exported_data.xlsx', index=False)
-        st.success('Data exported successfully!')
-
+    # Export to CSV (as a Download Link)
+    st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
 else:
     st.warning('Please upload the Excel files.')
