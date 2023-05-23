@@ -1,16 +1,16 @@
 import streamlit as st
 import pandas as pd
 
-# Display a file uploader widget in your app for each CSV file
-ppv_offers_file = st.file_uploader("Upload Weekly Offers CSV", type=['csv'])
-sat_quotes_file = st.file_uploader("Upload SAT Quotes CSV", type=['csv'])
-open_orders_file = st.file_uploader("Upload Open Orders CSV", type=['csv'])
+# Display a file uploader widget in your app for each Excel file
+ppv_offers_file = st.file_uploader("Upload PPV Offers Excel", type=['xlsx'])
+sat_quotes_file = st.file_uploader("Upload SAT Quotes Excel", type=['xlsx'])
+open_orders_file = st.file_uploader("Upload Open Orders Excel", type=['xlsx'])
 
 if ppv_offers_file and sat_quotes_file and open_orders_file:
-    # Use pandas to read the CSV data
-    ppv_offers = pd.read_csv(ppv_offers_file)
-    sat_quotes = pd.read_csv(sat_quotes_file)
-    open_orders = pd.read_csv(open_orders_file)
+    # Use pandas to read the Excel data
+    ppv_offers = pd.read_excel(ppv_offers_file)
+    sat_quotes = pd.read_excel(sat_quotes_file)
+    open_orders = pd.read_excel(open_orders_file)
 
     # Preprocessing and merging code here
 
@@ -43,4 +43,4 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     # Write the DataFrame to the screen
     st.write(merged_data)
 else:
-    st.warning('Please upload the CSV files.')
+    st.warning('Please upload the Excel files.')
