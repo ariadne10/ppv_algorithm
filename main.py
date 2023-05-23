@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # Display a file uploader widget in your app for each CSV file
-ppv_offers_file = st.file_uploader("Upload PPV Offers CSV", type=['csv'])
+ppv_offers_file = st.file_uploader("Upload Weekly Offers CSV", type=['csv'])
 sat_quotes_file = st.file_uploader("Upload SAT Quotes CSV", type=['csv'])
 open_orders_file = st.file_uploader("Upload Open Orders CSV", type=['csv'])
 
