@@ -28,8 +28,8 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     sat_quotes['FinalKey'] = sat_quotes['FinalKey'].str.upper()
 
     # Open Orders
-    open_orders['POCreateDate'] = pd.to_datetime(open_orders['POCreateDate'])
-    open_orders = open_orders.sort_values('POCreateDate', ascending=False).drop_duplicates(subset='FinalKey', keep='first')
+    open_orders['POCreateDate Hierarchy - POCreateDate'] = pd.to_datetime(open_orders['POCreateDate Hierarchy - POCreateDate'])
+    open_orders = open_orders.sort_values('POCreateDate Hierarchy - POCreateDate', ascending=False).drop_duplicates(subset='FinalKey', keep='first')
     open_orders = open_orders.iloc[:-2, :]
     open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
