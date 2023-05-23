@@ -52,4 +52,5 @@ open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
 
 # Merge the merged_data with open_orders on 'FinalKey' using a left join
-merged_data = merged_data.merge(open_orders, on='FinalKey', how='left
+merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
+
