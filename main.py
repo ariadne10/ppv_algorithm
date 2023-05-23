@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import openpyxl
 
 # Display a file uploader widget in your app for each Excel file
 ppv_offers_file = st.file_uploader("Upload PPV Offers Excel", type=['xlsx'])
