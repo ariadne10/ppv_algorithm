@@ -39,15 +39,18 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     sat_quotes = sat_quotes.iloc[:-2, :]
     sat_quotes['FinalKey'] = sat_quotes['FinalKey'].str.upper()
 
-    # Open Orders
-    open_orders['POCreateDate Hierarchy - POCreateDate'] = pd.to_datetime(open_orders['POCreateDate Hierarchy - POCreateDate'])
-    open_orders = open_orders.sort_values('POCreateDate Hierarchy - POCreateDate', ascending=False).drop_duplicates(subset='FinalKey', keep='first')
-    open_orders = open_orders.iloc[:-2, :]
-    open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
+ if open_orders.empty:
+        st.warning('Open Orders file is empty.')
+    else:
+        # Continue with processing
+        open_orders['POCreateDate Hierarchy - POCreateDate'] = pd.to_datetime(open_orders['POCreateDate Hierarchy - POCreateDate'])
+        open_orders = open_orders.sort_values('POCreateDate Hierarchy - POCreateDate', ascending=False).drop_duplicates(subset='FinalKey', keep='first')
+        open_orders = open_orders.iloc[:-2, :]
+        open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
- # Merging
+    # Merging
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
-    merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
+    merged_data = merged_data.merge(open_orders, on='FinalKey', how='left', validate='many_to_many' if not open_orders.empty else 'one_to_many')
 
     # Drop specified columns
     merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'STD Site', 'Offer JPN', 'STD JPN', 'STD MPN'])
