@@ -8,12 +8,12 @@ def get_table_download_link(df):
     in:  dataframe
     out: href string
     """
-    # Get current day of the week
-    day_of_week = datetime.datetime.now().strftime('%A')
-    
+    # Get current date
+    current_date = datetime.datetime.now().strftime('%m-%d-%y')
+
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-    href = f'<a href="data:file/csv;base64,{b64}" download="PPV_{day_of_week}.csv">Download csv file</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="PPV_{current_date}.csv">Download csv file</a>'
     return href
 
 # Display a file uploader widget in your app for each Excel file
