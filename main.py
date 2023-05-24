@@ -13,7 +13,7 @@ def get_table_download_link(df):
     return href
 
 # Display a file uploader widget in your app for each Excel file
-ppv_offers_file = st.file_uploader("Upload PPV Offers Excel", type=['xlsx'])
+ppv_offers_file = st.file_uploader("Upload Weekly Offers Excel", type=['xlsx'])
 sat_quotes_file = st.file_uploader("Upload SAT Quotes Excel", type=['xlsx'])
 open_orders_file = st.file_uploader("Upload Open Orders Excel", type=['xlsx'])
 
