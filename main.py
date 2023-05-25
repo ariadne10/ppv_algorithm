@@ -63,7 +63,7 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
     # Remove duplicates based on the 'Customer' column
-    merged_data.drop_duplicates(subset='Customer', inplace=True)
+    merged_data.drop_duplicates(subset='Company Name', inplace=True)
 
     # Drop specified columns
     merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'STD Site', 'Offer JPN', 'STD JPN', 'STD MPN'])
