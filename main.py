@@ -37,10 +37,11 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     ppv_offers[string_columns.columns] = string_columns
 
     ppv_offers = ppv_offers[
-        ppv_offers.apply(lambda x: x['Offer JPN'] in x['STD JPN'], axis=1) &
-        ppv_offers.apply(lambda x: x['Offer MPN'] in x['STD MPN'], axis=1) &
-        ppv_offers.apply(lambda x: x['Offer Site'] in x['STD Site'], axis=1)
+        ppv_offers.apply(lambda x: x['Offer JPN'] in x['STD JPN'] if pd.notna(x['Offer JPN']) and pd.notna(x['STD JPN']) else False, axis=1) &
+        ppv_offers.apply(lambda x: x['Offer MPN'] in x['STD MPN'] if pd.notna(x['Offer MPN']) and pd.notna(x['STD MPN']) else False, axis=1) &
+        ppv_offers.apply(lambda x: x['Offer Site'] in x['STD Site'] if pd.notna(x['Offer Site']) and pd.notna(x['STD Site']) else False, axis=1)
     ]
+
 
     # SAT Quotes
     sat_quotes = sat_quotes.iloc[:-2, :]
