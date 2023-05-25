@@ -37,9 +37,9 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     ppv_offers[string_columns.columns] = string_columns
 
     ppv_offers = ppv_offers[
-        (ppv_offers['Offer JPN'] == ppv_offers['STD JPN']) &
-        (ppv_offers['Offer MPN'] == ppv_offers['STD MPN']) &
-        (ppv_offers['Offer Site'] == ppv_offers['STD Site'])
+        ppv_offers.apply(lambda x: x['Offer JPN'] in x['STD JPN'], axis=1) &
+        ppv_offers.apply(lambda x: x['Offer MPN'] in x['STD MPN'], axis=1) &
+        ppv_offers.apply(lambda x: x['Offer Site'] in x['STD Site'], axis=1)
     ]
 
     # SAT Quotes
