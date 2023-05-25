@@ -29,11 +29,12 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     
     # Preprocessing and merging code here
 
-    # PPV Offers
+   # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
     # Convert all string/object type columns to upper case
     string_columns = ppv_offers.select_dtypes(include='object')
-    ppv_offers[string_columns.columns] = string_columns.apply(lambda x: x.str.upper())
+    string_columns = string_columns.applymap(lambda x: str(x).upper() if pd.notnull(x) else x)
+    ppv_offers[string_columns.columns] = string_columns
 
     ppv_offers = ppv_offers[
         (ppv_offers['Offer JPN'] == ppv_offers['STD JPN']) &
