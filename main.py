@@ -31,7 +31,7 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
 
     # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
-    ppv_offers = ppv_offers.apply(lambda x: x.str.upper() if x.dtype == 'object' else x)
+    ppv_offers = ppv_offers.apply(lambda x: x.str.upper() if x.dtype == 'object' else x, axis=0)
     ppv_offers = ppv_offers[
         (ppv_offers['Offer JPN'] == ppv_offers['STD JPN']) &
         (ppv_offers['Offer MPN'] == ppv_offers['STD MPN']) &
