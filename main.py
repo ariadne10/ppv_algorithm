@@ -60,14 +60,17 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
 
     # Merging
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
-    if not open_orders.empty:
-        merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
+    merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
+
+    # Remove duplicates based on the 'Customer' column
+    merged_data.drop_duplicates(subset='Customer', inplace=True)
 
     # Drop specified columns
-    merged_data = merged_data.drop(columns=['FinalKey', 'STD Site', 'STD JPN', 'STD MPN'])
+    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'STD Site', 'Offer JPN', 'STD JPN', 'STD MPN'])
 
     # Write the DataFrame to the screen
     st.write(merged_data)
+
 
     # Export to CSV (as a Download Link)
     st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
