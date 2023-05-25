@@ -31,7 +31,10 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
 
     # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
-    ppv_offers = ppv_offers.apply(lambda x: x.str.upper() if x.dtype == 'object' else x, axis=0)
+    # Convert all string/object type columns to upper case
+    string_columns = ppv_offers.select_dtypes(include='object')
+    ppv_offers[string_columns.columns] = string_columns.apply(lambda x: x.str.upper())
+
     ppv_offers = ppv_offers[
         (ppv_offers['Offer JPN'] == ppv_offers['STD JPN']) &
         (ppv_offers['Offer MPN'] == ppv_offers['STD MPN']) &
