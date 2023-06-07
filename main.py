@@ -58,21 +58,31 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
         open_orders = open_orders.iloc[:-2, :]
         open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
-    # Merging
-    merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
-    merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
+  # Merging
+merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
+merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
-    merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
+merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
 
+# Drop specified columns
+merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time'])
 
-    # Drop specified columns
-    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1'])
+# Rename columns
+merged_data = merged_data.rename(columns={
+    'STD Site': 'Site',
+    'STD JPN': 'JPN',
+    'Offer MPN': 'MPN',
+    'Supplier Media': 'Media',
+    'StandardCostUSD': 'BU STD',
+})
 
-    # Write the DataFrame to the screen
-    st.write(merged_data)
+# Rearrange columns to place 'SAT Active Price' after 'BU STD'
+cols = merged_data.columns.tolist()
+cols.insert(cols.index("BU STD")+1, cols.pop(cols.index('SAT Active Price')))
+merged_data = merged_data[cols]
 
+# Write the DataFrame to the screen
+st.write(merged_data)
 
-    # Export to CSV (as a Download Link)
-    st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
-else:
-    st.warning('Please upload the Excel files.')
+# Export to CSV (as a Download Link)
+st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
