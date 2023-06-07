@@ -65,7 +65,7 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
 
  # Drop specified columns
-    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time'])
+    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time', 'PR QTY'])
 
 # Rename columns
     merged_data = merged_data.rename(columns={
