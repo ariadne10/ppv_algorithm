@@ -66,7 +66,7 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
 
 
     # Drop specified columns
-    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN'])
+    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1'])
 
     # Write the DataFrame to the screen
     st.write(merged_data)
