@@ -65,29 +65,10 @@ if ppv_offers_file and sat_quotes_file and open_orders_file and review_file:
         open_orders = open_orders.iloc[:-2, :]
         open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
-    # Merging
+
+    # Assuming this is the part where you define your merged_data
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
-
-    merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
-
-    # Drop specified columns
-    merged_data = merged_data.drop(columns=['Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time', 'PR QTY'])
-
-    # Rename columns
-    merged_data = merged_data.rename(columns={
-        'STD Site': 'Site',
-        'STD JPN': 'JPN',
-        'Offer MPN': 'MPN',
-        'Supplier Media': 'Media',
-        'StandardCostUSD': 'BU STD',
-    })
-
-    # Rearrange columns to place 'SAT Active Price' after 'BU STD'
-    cols = merged_data.columns.tolist()
-    cols.insert(cols.index("BU STD")+1, cols.pop(cols.index('SAT Active Price')))
-    merged_data = merged_data[cols]
-
 
     # Extract the rows in review_df that are not present in merged_data based on 'FinalKey'
     missing_rows = review_df[~review_df['FinalKey'].isin(merged_data['FinalKey'])]
