@@ -2,41 +2,34 @@ import streamlit as st
 import pandas as pd
 import base64
 import datetime
-import numpy as np
 
 def get_table_download_link(df):
+    """Generates a link allowing the data in a given panda dataframe to be downloaded
+    in:  dataframe
+    out: href string
+    """
+    # Get current date
     current_date = datetime.datetime.now().strftime('%m-%d-%y')
+
     csv = df.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()
+    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
     href = f'<a href="data:file/csv;base64,{b64}" download="PPV_{current_date}.csv">Download csv file</a>'
     return href
 
+# Display a file uploader widget in your app for each Excel file
 ppv_offers_file = st.file_uploader("Upload PPV Offers Excel", type=['xlsx'])
 sat_quotes_file = st.file_uploader("Upload SAT Quotes Excel", type=['xlsx'])
 open_orders_file = st.file_uploader("Upload Open Orders Excel", type=['xlsx'])
-review_file = st.file_uploader("Upload Review Excel", type=['xlsx'])
 
-if ppv_offers_file and sat_quotes_file and open_orders_file and review_file:
+if ppv_offers_file and sat_quotes_file and open_orders_file:
+    # Use pandas to read the Excel data
     ppv_offers = pd.read_excel(ppv_offers_file)
     sat_quotes = pd.read_excel(sat_quotes_file)
     open_orders = pd.read_excel(open_orders_file)
-    review_df = pd.read_excel(review_file)
+    
+    # Preprocessing and merging code here
 
-    # Preprocessing review_df
-    review_df = review_df.dropna(how='all')
-    string_columns = review_df.select_dtypes(include='object')
-    string_columns = string_columns.applymap(lambda x: str(x).upper() if pd.notnull(x) else x)
-    review_df[string_columns.columns] = string_columns
-
-    review_df = review_df.rename(columns={
-        'Offer Site': 'Site',
-        'Offer JPN': 'JPN',
-        'Offer MPN': 'MPN',
-        'Supplier Media': 'Media'
-    })
-
-    # Preprocessing and merging for ppv_offers, sat_quotes, open_orders as in your original code
-       # PPV Offers
+   # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
     # Convert all string/object type columns to upper case
     string_columns = ppv_offers.select_dtypes(include='object')
@@ -65,16 +58,31 @@ if ppv_offers_file and sat_quotes_file and open_orders_file and review_file:
         open_orders = open_orders.iloc[:-2, :]
         open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
-
-    # Assuming this is the part where you define your merged_data
+  # Merging
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
-    # Extract the rows in review_df that are not present in merged_data based on 'FinalKey'
-    missing_rows = review_df[~review_df['FinalKey'].isin(merged_data['FinalKey'])]
+    merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
 
-    # Append these rows to merged_data
-    merged_data = merged_data.append(missing_rows, ignore_index=True)
-    
+ # Drop specified columns
+    merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time', 'PR QTY'])
+
+# Rename columns
+    merged_data = merged_data.rename(columns={
+        'STD Site': 'Site',
+        'STD JPN': 'JPN',
+        'Offer MPN': 'MPN',
+        'Supplier Media': 'Media',
+        'StandardCostUSD': 'BU STD',
+    })
+
+    # Rearrange columns to place 'SAT Active Price' after 'BU STD'
+    cols = merged_data.columns.tolist()
+    cols.insert(cols.index("BU STD")+1, cols.pop(cols.index('SAT Active Price')))
+    merged_data = merged_data[cols]
+
+    # Write the DataFrame to the screen
     st.write(merged_data)
+
+    # Export to CSV (as a Download Link)
     st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
