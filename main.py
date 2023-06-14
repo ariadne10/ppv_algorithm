@@ -29,7 +29,7 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     
     # Preprocessing and merging code here
 
-   # PPV Offers
+    # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
     # Convert all string/object type columns to upper case
     string_columns = ppv_offers.select_dtypes(include='object')
@@ -41,7 +41,6 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
         ppv_offers.apply(lambda x: x['Offer MPN'] in x['STD MPN'] if pd.notna(x['Offer MPN']) and pd.notna(x['STD MPN']) else False, axis=1) &
         ppv_offers.apply(lambda x: x['Offer Site'] in x['STD Site'] if pd.notna(x['Offer Site']) and pd.notna(x['STD Site']) else False, axis=1)
     ]
-
 
     # SAT Quotes
     sat_quotes = sat_quotes.iloc[:-2, :]
@@ -58,16 +57,16 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
         open_orders = open_orders.iloc[:-2, :]
         open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
-  # Merging
+    # Merging
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
     merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
 
- # Drop specified columns
+    # Drop specified columns
     merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time', 'PR QTY'])
 
-# Rename columns
+    # Rename columns
     merged_data = merged_data.rename(columns={
         'STD Site': 'Site',
         'STD JPN': 'JPN',
