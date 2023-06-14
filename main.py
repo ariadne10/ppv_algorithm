@@ -20,8 +20,6 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     sat_quotes = pd.read_excel(sat_quotes_file)
     open_orders = pd.read_excel(open_orders_file)
     
-    # Preprocessing and merging code here
-
     # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
     string_columns = ppv_offers.select_dtypes(include='object')
@@ -52,7 +50,19 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
 
     merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
 
-    merged_data = merged_data.drop(columns=['Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost'])
+    merged_data = merged_data.drop(columns=['Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time', 'PR QTY'])
+
+    merged_data = merged_data.rename(columns={
+        'STD Site': 'Site',
+        'STD JPN': 'JPN',
+        'Offer MPN': 'MPN',
+        'Supplier Media': 'Media',
+        'StandardCostUSD': 'BU STD',
+    })
+
+    cols = merged_data.columns.tolist()
+    cols.insert(cols.index("BU STD")+1, cols.pop(cols.index('SAT Active Price')))
+    merged_data = merged_data[cols]
 
     if review_file:
         review_data = pd.read_excel(review_file)
