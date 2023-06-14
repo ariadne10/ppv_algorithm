@@ -2,34 +2,41 @@ import streamlit as st
 import pandas as pd
 import base64
 import datetime
+import numpy as np
 
 def get_table_download_link(df):
-    """Generates a link allowing the data in a given panda dataframe to be downloaded
-    in:  dataframe
-    out: href string
-    """
-    # Get current date
     current_date = datetime.datetime.now().strftime('%m-%d-%y')
-
     csv = df.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+    b64 = base64.b64encode(csv.encode()).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="PPV_{current_date}.csv">Download csv file</a>'
     return href
 
-# Display a file uploader widget in your app for each Excel file
 ppv_offers_file = st.file_uploader("Upload PPV Offers Excel", type=['xlsx'])
 sat_quotes_file = st.file_uploader("Upload SAT Quotes Excel", type=['xlsx'])
 open_orders_file = st.file_uploader("Upload Open Orders Excel", type=['xlsx'])
+review_file = st.file_uploader("Upload Review Excel", type=['xlsx'])
 
-if ppv_offers_file and sat_quotes_file and open_orders_file:
-    # Use pandas to read the Excel data
+if ppv_offers_file and sat_quotes_file and open_orders_file and review_file:
     ppv_offers = pd.read_excel(ppv_offers_file)
     sat_quotes = pd.read_excel(sat_quotes_file)
     open_orders = pd.read_excel(open_orders_file)
-    
-    # Preprocessing and merging code here
+    review_df = pd.read_excel(review_file)
 
-   # PPV Offers
+    # Preprocessing review_df
+    review_df = review_df.iloc[:-2, :]
+    string_columns = review_df.select_dtypes(include='object')
+    string_columns = string_columns.applymap(lambda x: str(x).upper() if pd.notnull(x) else x)
+    review_df[string_columns.columns] = string_columns
+
+    review_df = review_df.rename(columns={
+        'Offer Site': 'Site',
+        'Offer JPN': 'JPN',
+        'Offer MPN': 'MPN',
+        'Supplier Media': 'Media'
+    })
+
+    # Preprocessing and merging for ppv_offers, sat_quotes, open_orders as in your original code
+       # PPV Offers
     ppv_offers = ppv_offers.iloc[:-2, :]
     # Convert all string/object type columns to upper case
     string_columns = ppv_offers.select_dtypes(include='object')
@@ -58,16 +65,16 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
         open_orders = open_orders.iloc[:-2, :]
         open_orders['FinalKey'] = open_orders['FinalKey'].str.upper()
 
-  # Merging
+    # Merging
     merged_data = ppv_offers.merge(sat_quotes, on='FinalKey', how='left')
     merged_data = merged_data.merge(open_orders, on='FinalKey', how='left')
 
     merged_data.drop_duplicates(subset=['FinalKey', 'Company Name'], inplace=True)
 
- # Drop specified columns
+    # Drop specified columns
     merged_data = merged_data.drop(columns=['FinalKey', 'Offer Site', 'Offer JPN', 'STD MPN', 'Jabil Media', 'MPQ_1', 'Date Release', 'Delivery Date', 'POCreateDate Hierarchy - POCreateDate', 'SupplierGlobalName Hierarchy - SupplierGlobalName', 'Open Order Cost', 'TP', 'Lead Time', 'PR QTY'])
 
-# Rename columns
+    # Rename columns
     merged_data = merged_data.rename(columns={
         'STD Site': 'Site',
         'STD JPN': 'JPN',
@@ -81,8 +88,15 @@ if ppv_offers_file and sat_quotes_file and open_orders_file:
     cols.insert(cols.index("BU STD")+1, cols.pop(cols.index('SAT Active Price')))
     merged_data = merged_data[cols]
 
-    # Write the DataFrame to the screen
-    st.write(merged_data)
 
-    # Export to CSV (as a Download Link)
+    # Comparing and merging discrepancies
+    comparison_cols = merged_data.columns.tolist()[:20]
+    merged_data.set_index(comparison_cols, inplace=True)
+    review_df.set_index(comparison_cols, inplace=True)
+    
+    diff_df = review_df.loc[~review_df.index.isin(merged_data.index)]
+    diff_df = diff_df.reset_index().reindex(columns = merged_data.columns, fill_value = np.nan)
+    merged_data = pd.concat([merged_data.reset_index(), diff_df])
+    
+    st.write(merged_data)
     st.markdown(get_table_download_link(merged_data), unsafe_allow_html=True)
